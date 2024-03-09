@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFA to DFA Converter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <div class="main">
+        <header>
+            <h1>NFA to DFA Converter</h1>
+        </header>
+
+        <div class="form-cont">
+            <h2>Enter the details of NFA</h2>
+            <form name="inputs" class="form">
+                <label for="language">Enter the language(seperated by commas) :</label>
+                <input name="language" id="language" type="text">
+                <h4>transitions :</h4>
+                <div class="dynamic-input">
+                    <div>
+                        <div class="transition">
+                            <label>From State :
+                                <input class="single-inp-state single-inp" name="ini-trans" type="text">
+                            </label>
+                            <label>Input :
+                                <input class="single-inp-inp single-inp" name="input-trans" type="text">
+                            </label>
+                            <label>To State :
+                                <input class="single-inp-tstate single-inp" name="to-trans" type="text">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="add-trans-btn" onclick="addTransition()">Add another Transition</div>
+            </form>
+        </div>
+        
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

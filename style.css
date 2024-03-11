@@ -1,3 +1,4 @@
+/*DEVS-LAPTOP*/
 *{
     margin: 0;
     padding: 0;
@@ -21,6 +22,10 @@ header{
     background-color: var(--sec-bg-color);
     padding: 20px 30px;
     color:var(--sec-txt-color);
+}
+
+h1{
+    text-align: center;
 }
 
 .main{
@@ -61,9 +66,38 @@ header{
 }
 
 .add-trans-btn{
-    background-color: antiquewhite;
+    background-color: rgb(134, 134, 134);
     border-radius: 10px;
     cursor: pointer;
     padding: 5px;
     text-align: center;
+}
+
+
+.nfa-display{
+    position: absolute;
+    inset: 10px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 20px;
+    place-items: center;
+    display: none;
+}
+
+table{
+    height: 50%;
+    width: 50%;
+    font-size: 20px;
+}
+
+th, td{
+    text-align: center;
+}
+
+.close-btn{
+    position: absolute;
+    top:50px;
+    right:50px;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
 }

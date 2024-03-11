@@ -251,3 +251,4 @@ function printNFA(){
 function refresh(){
     location.reload()
 }
+

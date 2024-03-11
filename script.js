@@ -14,6 +14,7 @@ class stateTrans{
         this.state = state
         this.input = input
         this.toState = toState
+        this.isFinal = 0
     }
 }
 
@@ -34,7 +35,7 @@ function addTransition(){
     transitionCont.appendChild(transitionNode)
 
     totalTransitions += 1
-}
+}  
  
 
 const DFAStates = []
@@ -81,6 +82,7 @@ function dataFilter(){
     // console.log(inputValues)
     // console.log(toStateValues)
     console.log(stateTransitions)
+    conmbineSameInputs()
 }
 
 function conmbineSameInputs(){
@@ -106,39 +108,109 @@ function conmbineSameInputs(){
         t.input = newInputs
         t.toState = newToState
     })
+    finalStates = document.getElementById("finalState").value.split(",")
+
+    for(let k = 0; k<stateTransitions.length; k++){
+        if(stateTransitions[k].input.includes(">")){
+            resolveLambdaValues(k)
+        }
+    }
+    if(language.indexOf(">")>-1){
+        language.splice(language.indexOf(">"),1)
+    }
+    DFAGenerator()
 }
  
 
-const finalDFAStates = [];
+const finalDFAStates = []
 const repeatCheckArr = []
+let finalStates
+
+
+
+function resolveLambdaValues(i){
+    let j, ind, output
+
+    // for(i = 0; i<stateTransitions.length;i++){
+    //     crntState = stateTransitions[i] 
+    //     if(crntState.input.includes(">")){
+    //         ind = crntState.input.indexOf(">")
+    //         output = crntState.toState[ind]
+
+    //         for(j = 0; j<output.length; j++){
+    //             stateTransitions[DFAStates.indexOf(output[j])].input
+    //         }
+    //     }
+    // }
+
+    crntState = stateTransitions[i] 
+    if(crntState.input.includes(">")){
+        ind = crntState.input.indexOf(">")
+        output = crntState.toState[ind]
+
+        for(j = 0; j<output.length; j++){
+            if(stateTransitions[DFAStates.indexOf(output[j])].input.includes(">")){
+                resolveLambdaValues(DFAStates.indexOf(output[j]))
+            }
+            // crntState.toState.splice(crntState.input.indexOf(">"), 1)
+            // crntState.input.splice(crntState.input.indexOf(">"), 1)
+
+            for(k = 0; k<crntState.input.length;k++){
+                nxtStateInd = stateTransitions[DFAStates.indexOf(output[j])].input.indexOf(crntState.input[k])
+                crntState.toState[k] = _.union(crntState.toState[k], stateTransitions[DFAStates.indexOf(output[j])].toState[nxtStateInd])
+            }
+        }
+    }
+
+    resolveLambdaForwardValue()
+}
+
+function resolveLambdaForwardValue(){
+    let crntState
+    for(let i = 0;i<stateTransitions.length;i++){
+        crntState = stateTransitions[i]
+        for(j=0;j<crntState.toState.length;j++){
+            for(let g =0;g<crntState.toState[j].length;g++){
+                // console.log(crntState.toState[j][g])
+                if(stateTransitions[DFAStates.indexOf(crntState.toState[j][g])].input.includes(">")){
+                    // console.log("Ineer Exe")
+                    nxtStateInd = stateTransitions[DFAStates.indexOf(crntState.toState[j][g])].input.indexOf(">")
+                    crntState.toState[j] = _.union(crntState.toState[j],  stateTransitions[DFAStates.indexOf(crntState.toState[j][g])].toState[nxtStateInd])
+                }
+            }
+        }
+    }
+}
+
+
 
 function DFAGenerator(){
-    let i, nextDFASate = "";
-    const temp = {}
-    for(i = 0; i<stateTransitions[0].input.length; i++){
-        if(stateTransitions[0].input[i] in temp){
-            temp[stateTransitions[0].input[i]] = temp[stateTransitions[0].input[i]] + "," + stateTransitions[0].toState[i].join()
-        }else{
-            temp[stateTransitions[0].input[i]] = stateTransitions[0].toState[i].join()
-        }
-    }    
+    let i;
+    // const temp = {}
+    // for(i = 0; i<stateTransitions[0].input.length; i++){
+    //     if(stateTransitions[0].input[i] in temp){
+    //         temp[stateTransitions[0].input[i]] = temp[stateTransitions[0].input[i]] + "," + stateTransitions[0].toState[i].join()
+    //     }else{
+    //         temp[stateTransitions[0].input[i]] = stateTransitions[0].toState[i].join()
+    //     }
+    // }    
 
-    const newStates = []
+    const newStates = [stateTransitions[0].state]
     const tempNewState = []
 
-    Object.values(temp).forEach(nextState =>{
-        console.log(nextState)
-        newStates.push(nextState)
-        tempNewState.push(nextState)
-    })
+    // Object.values(temp).forEach(nextState =>{
+    //     console.log(nextState)
+    //     newStates.push(nextState)
+    //     tempNewState.push(nextState)
+    // })
 
-    console.log("Initial")
-    console.log(newStates)
-    repeatCheckArr.push(stateTransitions[0].state)
+    // console.log("Initial")
+    // console.log(newStates)
+    // repeatCheckArr.push(stateTransitions[0].state)
 
-    finalDFAStates.push(new stateTrans(stateTransitions[0].state, language, tempNewState))
-    console.log("First")
-    console.log(finalDFAStates)
+    // finalDFAStates.push(new stateTrans(stateTransitions[0].state, language, tempNewState))
+    // console.log("First")
+    // console.log(finalDFAStates)
 
     i = 0;
     while(i<newStates.length){
@@ -148,7 +220,7 @@ function DFAGenerator(){
 
         const newInps = []
         const newNxtStates = []
-        let nextState;
+        let nextState, finalStateFlag = 0;
         for(let k = 0; k<language.length;k++){
             nextState = []
             for(let j=0; j<tempArr.length; j++){
@@ -186,8 +258,8 @@ function DFAGenerator(){
             // console.log(nextState)        
 
             
-            if(newStates.indexOf(nextState.join()) < 0){
-                newStates.push(nextState.join())
+            if(newStates.indexOf(nextState.sort().join()) < 0){
+                newStates.push(nextState.sort().join())
                 flagNewState = 1
             }
 
@@ -198,10 +270,20 @@ function DFAGenerator(){
         
         }
 
+        for(let r=0;r<tempArr.length;r++){
+            if(finalStates.includes(tempArr[r])){
+                finalStateFlag = 1
+                break
+            }
+        }
 
-        if(repeatCheckArr.indexOf(newStates[i]) < 0){
+
+        if(repeatCheckArr.indexOf(newStates[i].split(",")) < 0){
             finalDFAStates.push(new stateTrans(newStates[i], newInps, newNxtStates))
-            repeatCheckArr.push(newStates[i])
+            if(finalStateFlag == 1){
+                finalDFAStates[finalDFAStates.length-1].isFinal = 1
+            }
+            repeatCheckArr.push(newStates[i].split(","))
         }
         // console.log(newStates)
 
@@ -222,7 +304,7 @@ function printNFA(){
         <table border="1" cellpadding="10px">
             <tr>
                 <th>State</th>
-    `;
+        	`
 
     for(j=0;j<language.length;j++){
         content += `<th>Input (${language[j]})</th><th>Output</th>`
@@ -231,10 +313,20 @@ function printNFA(){
     content += "</tr>"
 
     for(i = 0; i<finalDFAStates.length; i++){
-        content += `
+
+        if(finalDFAStates[i].isFinal == 1){
+            content += `
+            <tr>
+                <td style="color:red;">${finalDFAStates[i].state}</td>
+             `
+        }else{
+            content += `
             <tr>
                 <td>${finalDFAStates[i].state}</td>
-        `
+            `
+        }
+
+
         for(let j = 0; j<language.length; j++){
             content += `<td>${finalDFAStates[i].input[j]}</td>
                         <td>${finalDFAStates[i].toState[j]}</td>
@@ -248,7 +340,17 @@ function printNFA(){
     NFADisplay.innerHTML += content
 }
 
+// function printNFA(){
+//     const NFADisplay = document.querySelector(".nfa-display")
+//     let i, j;
+
+//     for(i = 0; i<finalDFAStates.length; i++){
+//       NFADisplay.innerHTML += `<div class="node${i} node">${finalDFAStates[i].state}</div>`
+//     }
+//     NFADisplay.style.display = "grid"
+
+// }
+
 function refresh(){
     location.reload()
 }
-
